@@ -1,30 +1,72 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import { BrowserRouter, Routes, Route } from 'react-router'
+import { FC, PropsWithChildren, StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  Navigate,
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Outlet,
+} from "react-router";
+import Home from "./Home.tsx";
 import Login from "./Login.tsx";
-import { RecoilRoot } from 'recoil';
-import Home from './Home.tsx';
+import { RecoilRoot } from "recoil";
 
-const SecureRoute = () => {
-  // 통행증이 있으면 통과, 없으면 로그인 페이지로 이동
-}
+const SecureRoute: FC<PropsWithChildren> = ({ children }) => {
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) {
+    return <Navigate to="/login" replace={true} />;
+  }
 
-const RotuerProvider = () => {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path="/login" element={<Login />} />
-            </Routes>
-        </BrowserRouter>
-    )
-}
+  return <>{children}</>;
+};
 
-createRoot(document.getElementById('root')!).render(
+const AuthLayout = () => {
+  const accessToken = localStorage.getItem("accessToken");
+  if (!accessToken) {
+    return <Navigate to="/login" replace={true} />;
+  }
+
+  return <Outlet />;
+};
+
+const RouterProviderClassic = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <SecureRoute>
+              <Home />
+            </SecureRoute>
+          }
+        />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route>
+      <Route element={<AuthLayout />}>
+        <Route path="/" element={<Home />} />
+      </Route>
+      <Route path="/login" element={<Login />} />
+    </Route>
+  )
+);
+
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RecoilRoot>
-      <RotuerProvider />
+      {/* <RouterProvider /> */}
+      <RouterProvider router={router} />
     </RecoilRoot>
-  </StrictMode>,
-)
+  </StrictMode>
+);
