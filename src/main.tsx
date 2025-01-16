@@ -14,6 +14,7 @@ import {
 import Home from "./Home.tsx";
 import Login from "./Login.tsx";
 import { RecoilRoot } from "recoil";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const SecureRoute: FC<PropsWithChildren> = ({ children }) => {
   const accessToken = localStorage.getItem("accessToken");
@@ -64,9 +65,11 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RecoilRoot>
-      {/* <RouterProvider /> */}
-      <RouterProvider router={router} />
-    </RecoilRoot>
+    <QueryClientProvider client={new QueryClient()}>
+      <RecoilRoot>
+        {/* <RouterProvider /> */}
+        <RouterProvider router={router} />
+      </RecoilRoot>
+    </QueryClientProvider>
   </StrictMode>
 );
